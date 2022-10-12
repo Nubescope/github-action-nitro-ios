@@ -238,7 +238,7 @@ runs:
           args+=("--ios-codesigning-identity" "${{ inputs.ios-codesigning-identity }}")
         fi
 
-        if [[ -n"${{ inputs.ios-provisioning-profile-urls }}" && -n "${{ inputs.ios-provisioning-profiles-base64 }}" ]]; then
+        if [[ -n "${{ inputs.ios-provisioning-profile-urls }}" && -n "${{ inputs.ios-provisioning-profiles-base64 }}" ]]; then
           echo "⚠️ You cannot provide both 'ios-provisioning-profile-urls' and 'ios-provisioning-profiles-base64'"
           exit 1
         fi
@@ -272,7 +272,7 @@ runs:
           args+=("--ios-team-id" "${{ inputs.ios-team-id }}")
         fi
 
-        if [[ -n"${{ inputs.ios-export-method }}" ]]; then
+        if [[ -n "${{ inputs.ios-export-method }}" ]]; then
           args+=("--ios-export-method" "${{ inputs.ios-export-method }}")
         fi
 
