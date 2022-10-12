@@ -213,42 +213,42 @@ runs:
         # App Signing
         # -----------
 
-        if [[ -n ${{ inputs.ios-certificate-base64 }} && -n ${{ inputs.ios-certificate-url }} ]]; then
+        if [[ -n "${{ inputs.ios-certificate-base64 }}" && -n "${{ inputs.ios-certificate-url }}" ]]; then
           echo "⚠️ You cannot provide both: 'ios-certificate-base64' and 'ios-certificate-url'"
           exit 1
         fi
 
-        if [[ -z ${{ inputs.ios-certificate-base64 }} && -z ${{ inputs.ios-certificate-url }} ]]; then
+        if [[ -z "${{ inputs.ios-certificate-base64 }}" && -z "${{ inputs.ios-certificate-url }}" ]]; then
           echo "⚠️ You must provide at least one of these arguments: 'ios-certificate-base64', 'ios-certificate-url'"
           exit 1
         fi
 
-        if [[ -n ${{ inputs.ios-certificate-base64 }} ]]; then
+        if [[ -n "${{ inputs.ios-certificate-base64 }}" ]]; then
           echo -n "${{ inputs.ios-certificate-base64 }}" | base64 --decode --output "${RUNNER_TEMP}/certificate.p12"
           args+=("--ios-certificate-url" "file://${RUNNER_TEMP}/certificate.p12")
         else
           args+=("--ios-certificate-url" "${{ inputs.ios-certificate-url }}")
         fi
 
-        if [[ -n ${{ inputs.ios-certificate-passphrase }} ]]; then
+        if [[ -n "${{ inputs.ios-certificate-passphrase }}" ]]; then
           args+=("--ios-certificate-passphrase" "${{ inputs.ios-certificate-passphrase }}")
         fi
 
-        if [[ -n ${{ inputs.ios-codesigning-identity }} ]]; then
+        if [[ -n "${{ inputs.ios-codesigning-identity }}" ]]; then
           args+=("--ios-codesigning-identity" "${{ inputs.ios-codesigning-identity }}")
         fi
 
-        if [[ -n ${{ inputs.ios-provisioning-profile-urls }} && -n ${{ inputs.ios-provisioning-profiles-base64 }} ]]; then
+        if [[ -n"${{ inputs.ios-provisioning-profile-urls }}" && -n "${{ inputs.ios-provisioning-profiles-base64 }}" ]]; then
           echo "⚠️ You cannot provide both 'ios-provisioning-profile-urls' and 'ios-provisioning-profiles-base64'"
           exit 1
         fi
 
-        if [[ -z ${{ inputs.ios-provisioning-profile-urls }} && -z ${{ inputs.ios-provisioning-profiles-base64 }} ]]; then
+        if [[ -z "${{ inputs.ios-provisioning-profile-urls }}" && -z "${{ inputs.ios-provisioning-profiles-base64 }}" ]]; then
           echo "⚠️ You must provide at least one of these arguments: 'ios-provisioning-profile-urls', 'ios-provisioning-profiles-base64'"
           exit 1
         fi
 
-        if [[ -n ${{ inputs.ios-provisioning-profile-urls }} ]]; then
+        if [[ -n "${{ inputs.ios-provisioning-profile-urls }}" ]]; then
           IFS='|' ios_provisioning_profile_urls_array=("${{ inputs.ios-provisioning-profile-urls }}")
         else
           IFS='|' ios_provisioning_profiles_base64_array=("${{ inputs.ios-provisioning-profiles-base64 }}")
@@ -257,22 +257,22 @@ runs:
           do
               provisioning_profile_base64=${ios_provisioning_profiles_base64_array[$i]}
               echo -n "${provisioning_profile_base64}" | base64 --decode --output "${RUNNER_TEMP}/${i}.mobileprovision"
-              ios_provisioning_profile_urls_array+=( "file://${RUNNER_TEMP}/${i}.mobileprovision")
+              ios_provisioning_profile_urls_array+=("file://${RUNNER_TEMP}/${i}.mobileprovision")
           done
         fi
 
         # shellcheck disable=SC2206
         args+=("--ios-provisioning-profile-urls" ${ios_provisioning_profile_urls_array[@]})
 
-        if [[ -n ${{ inputs.ios-provisioning-profile-specifier }} ]]; then
+        if [[ -n "${{ inputs.ios-provisioning-profile-specifier }}" ]]; then
           args+=("--ios-provisioning-profile-specifier" "${{ inputs.ios-provisioning-profile-specifier }}")
         fi
 
-        if [[ -n ${{ inputs.ios-team-id }} ]]; then
+        if [[ -n "${{ inputs.ios-team-id }}" ]]; then
           args+=("--ios-team-id" "${{ inputs.ios-team-id }}")
         fi
 
-        if [[ -n ${{ inputs.ios-export-method }} ]]; then
+        if [[ -n"${{ inputs.ios-export-method }}" ]]; then
           args+=("--ios-export-method" "${{ inputs.ios-export-method }}")
         fi
 
