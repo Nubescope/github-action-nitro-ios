@@ -102,25 +102,25 @@ runs:
       run: |
         curl -fL https://github.com/bitrise-io/envman/releases/download/2.3.3/envman-"$(uname -s)"-"$(uname -m)" > /usr/local/bin/envman
         chmod +x /usr/local/bin/envman
-    # - name: Update Homebrew
-    #   shell: bash
-    #   run: |
-    #     brew update --preinstall
-    #     cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/fastlane.rb" "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/pigz.rb" > .github/brew-formulae
-    # - name: Configure Homebrew cache
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: |
-    #       ~/Library/Caches/Homebrew/fastlane--*
-    #       ~/Library/Caches/Homebrew/downloads/*--fastlane-*
-    #       ~/Library/Caches/Homebrew/pigz--*
-    #       ~/Library/Caches/Homebrew/downloads/*--pigz-*
-    #     key: brew-${{ hashFiles('.github/brew-formulae') }}
-    #     restore-keys: brew-
-    # - name: Install Homebrew dependencies
-    #   shell: bash
-    #   run: |
-    #     env HOMEBREW_NO_AUTO_UPDATE=1 brew install fastlane pigz
+    - name: Update Homebrew
+      shell: bash
+      run: |
+        brew update --preinstall
+        cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/fastlane.rb" "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/pigz.rb" > .github/brew-formulae
+    - name: Configure Homebrew cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/Library/Caches/Homebrew/fastlane--*
+          ~/Library/Caches/Homebrew/downloads/*--fastlane-*
+          ~/Library/Caches/Homebrew/pigz--*
+          ~/Library/Caches/Homebrew/downloads/*--pigz-*
+        key: brew-${{ hashFiles('.github/brew-formulae') }}
+        restore-keys: brew-
+    - name: Install Homebrew dependencies
+      shell: bash
+      run: |
+        env HOMEBREW_NO_AUTO_UPDATE=1 brew install fastlane pigz
     - name: Configure Nitro Cache
       uses: actions/cache@v2
       if: ${{ inputs.cache-provider == 'github' }}
@@ -343,10 +343,10 @@ runs:
         BIN_FILE_PATH="${RUNNER_TEMP}/nitro"
 
         # Download cli release
-        echo wget -q "https://github.com/nitro-build/bitrise-step-nitro-ios/releases/download/${BITRISE_STEP_VERSION}/${BIN_FILE}" -O "${BIN_FILE_PATH}"
-        echo chmod +x "${BIN_FILE_PATH}"
+        wget -q "https://github.com/nitro-build/bitrise-step-nitro-ios/releases/download/${BITRISE_STEP_VERSION}/${BIN_FILE}" -O "${BIN_FILE_PATH}"
+        chmod +x "${BIN_FILE_PATH}"
 
-        echo ${BIN_FILE_PATH} "${args[@]}"
+        ${BIN_FILE_PATH} "${args[@]}"
 
         exit_code=$?
 
