@@ -7,7 +7,7 @@ inputs:
   # Basic configuration
   root-directory:
     description: The directory within your project, in which your code is located. Leave this field empty if your code is not located in a subdirectory"
-    default: "./"
+    default: "."
   scheme:
     description: "The name of the iOS scheme"
   xcconfig-path:
@@ -119,6 +119,12 @@ runs:
       shell: bash
       run: |
         env HOMEBREW_NO_AUTO_UPDATE=1 brew install pigz
+    - uses: actions/cache@v3
+      with:
+        path: ${{ inputs.root-directory }}/Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
     - name: Run Nitro cli
       id: nitro-cli
       shell: bash
