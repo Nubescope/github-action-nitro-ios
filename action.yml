@@ -97,6 +97,11 @@ runs:
   steps:
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
+    - name: Install envman
+      shell: bash
+      run: |
+        curl -fL https://github.com/bitrise-io/envman/releases/download/2.3.3/envman-"$(uname -s)"-"$(uname -m)" > /usr/local/bin/envman
+        chmod +x /usr/local/bin/envman
     - name: Update Homebrew
       shell: bash
       run: |
