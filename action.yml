@@ -133,7 +133,7 @@ runs:
     - name: Install Homebrew dependencies
       shell: bash
       run: |
-        env HOMEBREW_NO_AUTO_UPDATE=1 brew install pigz
+        env HOMEBREW_NO_AUTO_UPDATE=1 brew install pigz coreutils
     - uses: actions/cache@v3
       with:
         path: ${{ inputs.root-directory }}/Pods
