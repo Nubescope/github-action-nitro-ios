@@ -230,11 +230,6 @@ runs:
           exit 1
         fi
 
-        # if [[ -z "${{ inputs.certificate-base64 }}" && -z "${{ inputs.certificate-url }}" ]]; then
-        #   echo "⚠️ You must provide at least one of these arguments: 'certificate-base64', 'certificate-url'"
-        #   exit 1
-        # fi
-
         if [[ -n "${{ inputs.certificate-base64 }}" ]]; then
           echo -n "${{ inputs.certificate-base64 }}" | base64 --decode --output "${RUNNER_TEMP}/certificate.p12"
           args+=("--certificate-url" "file://${RUNNER_TEMP}/certificate.p12")
@@ -254,11 +249,6 @@ runs:
           echo "⚠️ You cannot provide both 'provisioning-profile-urls' and 'provisioning-profiles-base64'"
           exit 1
         fi
-
-        # if [[ -z "${{ inputs.provisioning-profile-urls }}" && -z "${{ inputs.provisioning-profiles-base64 }}" ]]; then
-        #   echo "⚠️ You must provide at least one of these arguments: 'provisioning-profile-urls', 'provisioning-profiles-base64'"
-        #   exit 1
-        # fi
 
         if [[ -n "${{ inputs.provisioning-profile-urls }}" ]]; then
           IFS='|' ios_provisioning_profile_urls_array=("${{ inputs.provisioning-profile-urls }}")
