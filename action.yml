@@ -107,13 +107,17 @@ runs:
       run: |
         brew update --preinstall
         env HOMEBREW_NO_AUTO_UPDATE=1 brew install pigz coreutils
+    - name: Install fastlane globally
+      shell: bash
+      run: |
+        set -e
+
+        sudo gem install fastlane
     - name: Run Nitro cli
       id: nitro-cli
       shell: bash
       run: |
-        set -ex
-
-        sudo gem install fastlane
+        set -e
 
         if [[ "${{ inputs.fail-safe }}" == "true" || "${{ inputs.fail-safe }}" == "yes" ]]; then
           set +e
@@ -332,5 +336,3 @@ runs:
           echo "nitro-build-failed=false" >> $GITHUB_OUTPUT
           echo "nitro-build-status=success" >> $GITHUB_OUTPUT
         fi
-
-        echo "NITRO_BOOTED_AT_TIMESTAMP: ${NITRO_BOOTED_AT_TIMESTAMP}"
