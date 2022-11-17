@@ -102,44 +102,11 @@ runs:
       run: |
         curl -fL https://github.com/bitrise-io/envman/releases/download/2.3.3/envman-"$(uname -s)"-"$(uname -m)" > /usr/local/bin/envman
         chmod +x /usr/local/bin/envman
-    - name: Update Homebrew
-      shell: bash
-      run: |
-        brew update --preinstall
-    - name: Output for hashing pigz
-      shell: bash
-      run: |
-        cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/pigz.rb" > .github/brew-pigz
-    - name: Output for hashing coreutils
-      shell: bash
-      run: |
-        cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/coreutils.rb" > .github/brew-coreutils
-    - name: Configure Homebrew cache for pigz
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/Library/Caches/Homebrew/pigz--*
-          ~/Library/Caches/Homebrew/downloads/*--pigz-*
-        key: brew-pigz-${{ hashFiles('.github/brew-pigz') }}
-        restore-keys: brew-
-    - name: Configure Homebrew cache for coreutils
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/Library/Caches/Homebrew/coreutils--*
-          ~/Library/Caches/Homebrew/downloads/*--coreutils-*
-        key: brew-coreutils-${{ hashFiles('.github/brew-coreutils') }}
-        restore-keys: brew-coreutils-
     - name: Install Homebrew dependencies
       shell: bash
       run: |
+        brew update --preinstall
         env HOMEBREW_NO_AUTO_UPDATE=1 brew install pigz coreutils
-    - uses: actions/cache@v3
-      with:
-        path: ${{ inputs.root-directory }}/Pods
-        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-pods-
     - name: Run Nitro cli
       id: nitro-cli
       shell: bash
