@@ -72,6 +72,8 @@ inputs:
     description: "The path to the directory where to place all of Nitro's output files"
   entry-file:
     description: "The entry file for bundle generation"
+  detox-configuration:
+    description: "Select a device configuration from your defined configurations"
   debug:
     description: "Enable verbose logs. Available Options: (`yes` / `no`)"
   fail-safe:
@@ -86,12 +88,16 @@ outputs:
   nitro-logs-path:
     description: "The full path to access the build log"
     value: ${{ steps.nitro-cli.outputs.nitro-logs-path }}
-  nitro-deploy-path:
-    description: "The full path to access the build artifacts"
-    value: ${{ steps.nitro-cli.outputs.nitro-deploy-path }}
   nitro-summary-path:
     description: "The full path to access the build summary report"
     value: ${{ steps.nitro-cli.outputs.nitro-summary-path }}
+  nitro-app-path:
+    description: "The full path to access the iOS package (.app or .ipa)"
+    value: ${{ steps.nitro-cli.outputs.nitro-app-path }}
+  # deprecated
+  nitro-deploy-path:
+    description: "The full path to access the iOS package (.app or .ipa)"
+    value: ${{ steps.nitro-cli.outputs.nitro-deploy-path }}
 runs:
   using: "composite"
   steps:
@@ -196,57 +202,67 @@ runs:
         # App Signing
         # -----------
 
-        if [[ -n "${{ inputs.certificate-base64 }}" && -n "${{ inputs.certificate-url }}" ]]; then
-          echo "⚠️ You cannot provide both: 'certificate-base64' and 'certificate-url'"
-          exit 1
-        fi
+        if [[ 
+            -n "${{ inputs.certificate-base64 }}" || 
+            -n "${{ inputs.certificate-url }}" ||
+            -n "${{ inputs.certificate-passphrase }}" ||
+            -n "${{ inputs.codesigning-identity }}" ||
+            -n "${{ inputs.provisioning-profiles-base64 }}" ||
+            -n "${{ inputs.provisioning-profile-urls }}" ||
+            -n "${{ inputs.provisioning-profile-specifier }}"
+        ]]; then
+          if [[ -n "${{ inputs.certificate-base64 }}" && -n "${{ inputs.certificate-url }}" ]]; then
+            echo "⚠️ You cannot provide both: 'certificate-base64' and 'certificate-url'"
+            exit 1
+          fi
 
-        if [[ -n "${{ inputs.certificate-base64 }}" ]]; then
-          echo -n "${{ inputs.certificate-base64 }}" | base64 --decode --output "${RUNNER_TEMP}/certificate.p12"
-          args+=("--certificate-url" "file://${RUNNER_TEMP}/certificate.p12")
-        else
-          args+=("--certificate-url" "${{ inputs.certificate-url }}")
-        fi
+          if [[ -n "${{ inputs.certificate-base64 }}" ]]; then
+            echo -n "${{ inputs.certificate-base64 }}" | base64 --decode --output "${RUNNER_TEMP}/certificate.p12"
+            args+=("--certificate-url" "file://${RUNNER_TEMP}/certificate.p12")
+          else
+            args+=("--certificate-url" "${{ inputs.certificate-url }}")
+          fi
 
-        if [[ -n "${{ inputs.certificate-passphrase }}" ]]; then
-          args+=("--certificate-passphrase" "${{ inputs.certificate-passphrase }}")
-        fi
+          if [[ -n "${{ inputs.certificate-passphrase }}" ]]; then
+            args+=("--certificate-passphrase" "${{ inputs.certificate-passphrase }}")
+          fi
 
-        if [[ -n "${{ inputs.codesigning-identity }}" ]]; then
-          args+=("--codesigning-identity" "${{ inputs.codesigning-identity }}")
-        fi
+          if [[ -n "${{ inputs.codesigning-identity }}" ]]; then
+            args+=("--codesigning-identity" "${{ inputs.codesigning-identity }}")
+          fi
 
-        if [[ -n "${{ inputs.provisioning-profile-urls }}" && -n "${{ inputs.provisioning-profiles-base64 }}" ]]; then
-          echo "⚠️ You cannot provide both 'provisioning-profile-urls' and 'provisioning-profiles-base64'"
-          exit 1
-        fi
+          if [[ -n "${{ inputs.provisioning-profile-urls }}" && -n "${{ inputs.provisioning-profiles-base64 }}" ]]; then
+            echo "⚠️ You cannot provide both 'provisioning-profile-urls' and 'provisioning-profiles-base64'"
+            exit 1
+          fi
 
-        if [[ -n "${{ inputs.provisioning-profile-urls }}" ]]; then
-          IFS='|' ios_provisioning_profile_urls_array=("${{ inputs.provisioning-profile-urls }}")
-        else
-          IFS='|' ios_provisioning_profiles_base64_array=("${{ inputs.provisioning-profiles-base64 }}")
+          if [[ -n "${{ inputs.provisioning-profile-urls }}" ]]; then
+            IFS='|' ios_provisioning_profile_urls_array=("${{ inputs.provisioning-profile-urls }}")
+          else
+            IFS='|' ios_provisioning_profiles_base64_array=("${{ inputs.provisioning-profiles-base64 }}")
 
-          for i in "${!ios_provisioning_profiles_base64_array[@]}"
-          do
-              provisioning_profile_base64=${ios_provisioning_profiles_base64_array[$i]}
-              echo -n "${provisioning_profile_base64}" | base64 --decode --output "${RUNNER_TEMP}/${i}.mobileprovision"
-              ios_provisioning_profile_urls_array+=("file://${RUNNER_TEMP}/${i}.mobileprovision")
-          done
-        fi
+            for i in "${!ios_provisioning_profiles_base64_array[@]}"
+            do
+                provisioning_profile_base64=${ios_provisioning_profiles_base64_array[$i]}
+                echo -n "${provisioning_profile_base64}" | base64 --decode --output "${RUNNER_TEMP}/${i}.mobileprovision"
+                ios_provisioning_profile_urls_array+=("file://${RUNNER_TEMP}/${i}.mobileprovision")
+            done
+          fi
 
-        # shellcheck disable=SC2206
-        args+=("--provisioning-profile-urls" ${ios_provisioning_profile_urls_array[@]})
+          # shellcheck disable=SC2206
+          args+=("--provisioning-profile-urls" ${ios_provisioning_profile_urls_array[@]})
 
-        if [[ -n "${{ inputs.provisioning-profile-specifier }}" ]]; then
-          args+=("--provisioning-profile-specifier" "${{ inputs.provisioning-profile-specifier }}")
-        fi
+          if [[ -n "${{ inputs.provisioning-profile-specifier }}" ]]; then
+            args+=("--provisioning-profile-specifier" "${{ inputs.provisioning-profile-specifier }}")
+          fi
 
-        if [[ -n "${{ inputs.team-id }}" ]]; then
-          args+=("--team-id" "${{ inputs.team-id }}")
-        fi
+          if [[ -n "${{ inputs.team-id }}" ]]; then
+            args+=("--team-id" "${{ inputs.team-id }}")
+          fi
 
-        if [[ -n "${{ inputs.export-method }}" ]]; then
-          args+=("--export-method" "${{ inputs.export-method }}")
+          if [[ -n "${{ inputs.export-method }}" ]]; then
+            args+=("--export-method" "${{ inputs.export-method }}")
+          fi
         fi
 
         # -------
@@ -303,11 +319,15 @@ runs:
           args+=("--output-directory" "${{ inputs.output-directory }}")
         fi
 
+        if [[ -n "${{ inputs.detox-configuration }}" ]]; then
+          args+=("--detox-configuration" "${{ inputs.detox-configuration }}")
+        fi
+
         # -------------------
         # Nitro Cli execution
         # -------------------
 
-        BITRISE_STEP_VERSION=4.0.0
+        BITRISE_STEP_VERSION=4.4.0
 
         MACOS_BIN_FILE="nitro-macos"
         LINUX_BIN_FILE="nitro-linux"
@@ -325,8 +345,11 @@ runs:
 
         echo "nitro-output-dir=$(envman run bash -c 'echo ${NITRO_OUTPUT_DIR}')" >> $GITHUB_OUTPUT
         echo "nitro-logs-path=$(envman run bash -c 'echo ${NITRO_LOGS_PATH}')" >> $GITHUB_OUTPUT
-        echo "nitro-deploy-path=$(envman run bash -c 'echo ${NITRO_DEPLOY_PATH}')" >> $GITHUB_OUTPUT
         echo "nitro-summary-path=$(envman run bash -c 'echo ${NITRO_SUMMARY_PATH}')" >> $GITHUB_OUTPUT
+        echo "nitro-app-path=$(envman run bash -c 'echo ${NITRO_APP_PATH}')" >> $GITHUB_OUTPUT
+
+        # deprecated
+        echo "nitro-deploy-path=$(envman run bash -c 'echo ${NITRO_DEPLOY_PATH}')" >> $GITHUB_OUTPUT
 
         if [[ exit_code -ne 0 ]]; then
           echo "⚠️ Nitro has thrown a '${exit_code}' error code while running on fail-safe mode. You can check 'NITRO_BUILD_FAILED' value in further steps."
