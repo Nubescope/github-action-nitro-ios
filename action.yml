@@ -121,6 +121,8 @@ runs:
         sudo gem install fastlane
     - name: Run Nitro cli
       id: nitro-cli
+      env:
+        NITRO_API_KEY: ${{ secrets.NITRO_API_KEY }}
       shell: bash
       run: |
         set -e
@@ -338,9 +340,6 @@ runs:
         # Download cli release
         wget -q "https://github.com/nitro-build/bitrise-step-nitro-ios/releases/download/${BITRISE_STEP_VERSION}/${BIN_FILE}" -O "${BIN_FILE_PATH}"
         chmod +x "${BIN_FILE_PATH}"
-
-        # Default to ${{ secrets.NITRO_API_KEY }} if NITRO_API_KEY not set
-        export NITRO_API_KEY=${NITRO_API_KEY:-"${{ secrets.NITRO_API_KEY }}"}
 
         ${BIN_FILE_PATH} "${args[@]}"
 
