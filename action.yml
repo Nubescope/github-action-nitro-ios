@@ -68,6 +68,9 @@ inputs:
     description: "Run command once build successfully finished (e.g. `yarn publish`)"
 
   # Advanced
+  nitro-api-key:
+    description: "Nitro API key"
+    default: ${{ secrets.NITRO_API_KEY }}
   output-directory:
     description: "The path to the directory where to place all of Nitro's output files"
   entry-file:
@@ -340,6 +343,9 @@ runs:
         # Download cli release
         wget -q "https://github.com/nitro-build/bitrise-step-nitro-ios/releases/download/${BITRISE_STEP_VERSION}/${BIN_FILE}" -O "${BIN_FILE_PATH}"
         chmod +x "${BIN_FILE_PATH}"
+
+        # Default to ${{ inputs.nitro-api-key }} if NITRO_API_KEY env not set
+        export NITRO_API_KEY=${NITRO_API_KEY:-"${{ inputs.nitro-api-key }}"}
 
         ${BIN_FILE_PATH} "${args[@]}"
 
