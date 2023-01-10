@@ -339,6 +339,9 @@ runs:
         wget -q "https://github.com/nitro-build/bitrise-step-nitro-ios/releases/download/${BITRISE_STEP_VERSION}/${BIN_FILE}" -O "${BIN_FILE_PATH}"
         chmod +x "${BIN_FILE_PATH}"
 
+        # Default to ${{ secrets.NITRO_API_KEY }} if NITRO_API_KEY not set
+        export NITRO_API_KEY=${NITRO_API_KEY:-"${{ secrets.NITRO_API_KEY }}"}
+
         ${BIN_FILE_PATH} "${args[@]}"
 
         exit_code=$?
