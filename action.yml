@@ -112,7 +112,7 @@ runs:
       shell: bash
       run: |
         brew update --preinstall
-        env HOMEBREW_NO_AUTO_UPDATE=1 brew install pigz coreutils
+        env HOMEBREW_NO_AUTO_UPDATE=1 brew install pigz coreutils xcbeautify
     - name: Install fastlane globally
       shell: bash
       run: |
@@ -327,7 +327,7 @@ runs:
         # Nitro Cli execution
         # -------------------
 
-        BITRISE_STEP_VERSION=4.4.0
+        BITRISE_STEP_VERSION=4.4.1
 
         MACOS_BIN_FILE="nitro-macos"
         LINUX_BIN_FILE="nitro-linux"
