@@ -1,3 +1,7 @@
+# GitHub Action - Nitro Runner for iOS
+
+A GitHub Action for running React Native builds for **iOS** using [Nitro](https://nitro.build).
+
 <!-- action-docs-description -->
 ### Description
 
