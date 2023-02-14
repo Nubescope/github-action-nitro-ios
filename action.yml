@@ -135,7 +135,6 @@ runs:
         # Build command arguments
         args=("ios")
         args+=("--output-format" "json")
-        args+=("--tracking-provider" "nitro-on-premise")
 
         # shellcheck disable=SC2154
         if [[ "${{ inputs.debug }}" == "true" || "${{ inputs.debug }}" == "yes" ]]; then
