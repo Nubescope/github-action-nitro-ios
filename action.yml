@@ -209,7 +209,7 @@ runs:
           fi
 
           if [[ -n "${{ inputs.certificate-passphrase }}" ]]; then
-            args+=("--certificate-passphrase" "${{ inputs.certificate-passphrase }}")
+            args+=("--certificate-passphrase" '${{ inputs.certificate-passphrase }}')
           fi
 
           if [[ -n "${{ inputs.codesigning-identity }}" ]]; then
