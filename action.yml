@@ -99,6 +99,8 @@ runs:
   steps:
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ruby
     - name: Install Homebrew dependencies
       shell: bash
       run: |
